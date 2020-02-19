@@ -50,6 +50,7 @@ int main()
 	window.setFramerateLimit(60);
 	bool update = true;
 	bool mouse_left = false;
+	bool mouse_right = false;
 	bool reset = false;
 	sf::Vector2f mouse;
 	Cell *cells = new Cell[100 * 100];
@@ -86,11 +87,17 @@ int main()
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
 			{
-				mouse_left = true;
+				if(event.mouseButton.button == sf::Mouse::Left)
+					mouse_left = true;
+				if(event.mouseButton.button == sf::Mouse::Right)
+					mouse_right = true;
 			}
 			if(event.type == sf::Event::MouseButtonReleased)
 			{
-				mouse_left = false;
+				if(event.mouseButton.button == sf::Mouse::Left)
+					mouse_left = false;
+				if(event.mouseButton.button == sf::Mouse::Right)
+					mouse_right = false;
 			}
 		}
 		if(update)
@@ -161,6 +168,8 @@ int main()
 			cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].selected = true;
 			if(mouse_left)
 				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].alive = true;
+			if(mouse_right)
+				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].alive = false;
 		}
 		if(reset)
 		{
