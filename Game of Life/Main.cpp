@@ -10,6 +10,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <time.h>
 
 class Cell
 {
@@ -44,25 +45,31 @@ private:
 
 int main()
 {
-	const int SC_WIDTH = 800, SC_HEIGHT = 800;
-	float scale = 8;
+	srand((unsigned int) time(0));
+	const int SC_WIDTH = 640, SC_HEIGHT = 480;
+	int scale = 8;
+	int n_cell_x = SC_WIDTH / scale, n_cell_y = SC_HEIGHT / scale;
 	sf::RenderWindow window(sf::VideoMode(SC_WIDTH, SC_HEIGHT), "Game of Life");
-	window.setFramerateLimit(60);
 	bool update = true;
 	bool mouse_left = false;
 	bool mouse_right = false;
 	bool reset = false;
+	bool random = false;
 	sf::Vector2f mouse;
-	Cell *cells = new Cell[100 * 100];
-	for(unsigned int i = 0; i < 100; i++)
+	Cell *cells = new Cell[n_cell_x * n_cell_y];
+	for(unsigned int i = 0; i < n_cell_x; i++)
 	{
-		for(unsigned int j = 0; j < 100; j++)
+		for(unsigned int j = 0; j < n_cell_y; j++)
 		{
-			cells[i + j * 100] = Cell(scale, (float) i, (float) j);
+			cells[i + j * n_cell_x] = Cell(scale, (float) i, (float) j);
 		}
 	}
-	while(1)
+	while(window.isOpen())
 	{
+		if(update)
+			window.setFramerateLimit(0);
+		else
+			window.setFramerateLimit(0);
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
@@ -74,6 +81,8 @@ int main()
 					update = false;
 				if(event.key.code == sf::Keyboard::R)
 					reset = true;
+				if(event.key.code == sf::Keyboard::T)
+					random = true;
 			}
 			if(event.type == sf::Event::KeyReleased)
 			{
@@ -84,6 +93,14 @@ int main()
 			{
 				mouse.x = event.mouseMove.x;
 				mouse.y = event.mouseMove.y;
+				if(mouse.x > SC_WIDTH - 1)
+					mouse.x = SC_WIDTH - 1;
+				if(mouse.x < 0)
+					mouse.x = 0;
+				if(mouse.y > SC_HEIGHT - 1)
+					mouse.y = SC_HEIGHT - 1;
+				if(mouse.y < 0)
+					mouse.y = 0;
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
 			{
@@ -102,34 +119,34 @@ int main()
 		}
 		if(update)
 		{
-			Cell *temp = new Cell[100 * 100];
-			for(unsigned int i = 0; i < 100 * 100; i++)
+			Cell *temp = new Cell[n_cell_x * n_cell_y];
+			for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
 			{
 				temp[i] = cells[i];
 			}
-			for(unsigned int i = 0; i < 100 * 100; i++)
+			for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
 			{
 				if(update)
 				{
 					cells[i].neighbours = 0;
 					if(temp[i].x - 1 > 0 && temp[i].y - 1 > 0 &&
-					   temp[i].x + 1 < 100 && temp[i].y + 1 < 100)
+					   temp[i].x + 1 < n_cell_x && temp[i].y + 1 < n_cell_y)
 					{
 						if(temp[i - 1].alive)
 							cells[i].neighbours++;
 						if(temp[i + 1].alive)
 							cells[i].neighbours++;
-						if(temp[i - 100].alive)
+						if(temp[i - n_cell_x].alive)
 							cells[i].neighbours++;
-						if(temp[i - 101].alive)
+						if(temp[i - (n_cell_x + 1)].alive)
 							cells[i].neighbours++;
-						if(temp[i - 99].alive)
+						if(temp[i - (n_cell_x - 1)].alive)
 							cells[i].neighbours++;
-						if(temp[i + 100].alive)
+						if(temp[i + n_cell_x].alive)
 							cells[i].neighbours++;
-						if(temp[i + 101].alive)
+						if(temp[i + (n_cell_x + 1)].alive)
 							cells[i].neighbours++;
-						if(temp[i + 99].alive)
+						if(temp[i + (n_cell_x - 1)].alive)
 							cells[i].neighbours++;
 					}
 					if(cells[i].alive)
@@ -152,35 +169,43 @@ int main()
 		}
 		else
 		{
-			for(unsigned int i = 0; i < 100 * 100; i++)
+			for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
 			{
 				cells[i].GetDrawable().setFillColor(sf::Color(175, 175, 175));
 				cells[i].selected = false;
 			}
-			if(cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].alive)
+			if(cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].alive)
 			{
-				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].GetDrawable().setFillColor(sf::Color(175, 175, 175, 200));
+				cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].GetDrawable().setFillColor(sf::Color(175, 175, 175, 200));
 			}
 			else
 			{
-				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].GetDrawable().setFillColor(sf::Color(175, 175, 175, 100));
+				cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].GetDrawable().setFillColor(sf::Color(175, 175, 175, 100));
 			}
-			cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].selected = true;
+			cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].selected = true;
 			if(mouse_left)
-				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].alive = true;
+				cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].alive = true;
 			if(mouse_right)
-				cells[(((int) mouse.x / 8) + ((int) mouse.y / 8) * 100)].alive = false;
+				cells[(((int) mouse.x / scale) + ((int) mouse.y / scale) * n_cell_x)].alive = false;
 		}
 		if(reset)
 		{
-			for(unsigned int i = 0; i < 100 * 100; i++)
+			for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
 			{
 				cells[i].alive = false;
 				reset = false;
 			}
 		}
+		if(random)
+		{
+			for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
+			{
+				cells[i].alive = rand() % 2;
+				random = false;
+			}
+		}
 		window.clear();
-		for(unsigned int i = 0; i < 100 * 100; i++)
+		for(unsigned int i = 0; i < n_cell_x * n_cell_y; i++)
 		{
 			if(cells[i].alive || cells[i].selected)
 				window.draw(cells[i].GetDrawable());
