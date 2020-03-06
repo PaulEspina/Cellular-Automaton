@@ -48,7 +48,7 @@ int main()
 	srand((unsigned int) time(0));
 	const int SC_WIDTH = 640, SC_HEIGHT = 480;
 	int scale = 8;
-	int n_cell_x = SC_WIDTH / scale, n_cell_y = SC_HEIGHT / scale;
+	unsigned int n_cell_x = SC_WIDTH / scale, n_cell_y = SC_HEIGHT / scale;
 	sf::RenderWindow window(sf::VideoMode(SC_WIDTH, SC_HEIGHT), "Game of Life");
 	bool update = true;
 	bool mouse_left = false;
@@ -66,10 +66,6 @@ int main()
 	}
 	while(window.isOpen())
 	{
-		if(update)
-			window.setFramerateLimit(0);
-		else
-			window.setFramerateLimit(0);
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
@@ -78,16 +74,14 @@ int main()
 			if(event.type == sf::Event::KeyPressed)
 			{
 				if(event.key.code == sf::Keyboard::Space)
-					update = false;
+					if(update)
+						update = false;
+					else
+						update = true;
 				if(event.key.code == sf::Keyboard::R)
 					reset = true;
 				if(event.key.code == sf::Keyboard::T)
 					random = true;
-			}
-			if(event.type == sf::Event::KeyReleased)
-			{
-				if(event.key.code == sf::Keyboard::Space)
-					update = true;
 			}
 			if(event.type == sf::Event::MouseMoved)
 			{
